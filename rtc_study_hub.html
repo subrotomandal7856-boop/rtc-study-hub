@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RTC Study Hub</title>
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#6b7280;--accent:#3157d5;--soft:#e9efff;--border:#e5e7eb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Arial,sans-serif}
+header{background:var(--accent);color:#fff;padding:22px 18px;border-radius:0 0 22px 22px}
+header h1{margin:0;font-size:26px} header p{margin:5px 0 0;opacity:.9}
+main{max-width:850px;margin:auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 3px 12px #0000000b}
+h2{font-size:19px;margin:0 0 13px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.subject{padding:15px;border-radius:13px;background:var(--soft);cursor:pointer}
+.subject b{display:block;font-size:17px}.subject span{font-size:13px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{text-align:center;padding:14px;background:var(--soft);border-radius:12px}
+.stat strong{display:block;font-size:24px}
+input,select{width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font-size:15px}
+button{border:0;border-radius:10px;padding:11px 14px;background:var(--accent);color:white;font-weight:700;cursor:pointer}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}
+.task{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.task:last-child{border-bottom:0}.task.done span{text-decoration:line-through;color:var(--muted)}
+.task button{flex:0 0 auto;padding:7px 10px;background:#dc3545}
+.timer{text-align:center;font-size:42px;font-weight:800;margin:8px}
+.timerBtns{display:flex;justify-content:center;gap:8px}
+.formula{padding:11px;margin:7px 0;background:var(--soft);border-radius:10px}
+.notice{padding:12px;background:#f8fafc;border-left:4px solid var(--accent);border-radius:8px;margin:7px 0}
+.small{font-size:13px;color:var(--muted)}
+footer{text-align:center;color:var(--muted);padding:20px;font-size:12px}
+@media(max-width:600px){.stats{grid-template-columns:1fr 1fr 1fr}.grid{grid-template-columns:1fr 1fr}.row{flex-wrap:wrap}.row>*{min-width:130px}}
+body.dark{--bg:#0f172a;--card:#172033;--text:#f3f4f6;--muted:#a7afbd;--soft:#24304a;--border:#334155}
+body.dark .notice{background:#1e293b}
+</style>
+</head>
+<body>
+<header>
+  <h1>📚 RTC Study Hub</h1>
+  <p>Personal study app • Demo / not an official RTC website</p>
+</header>
+
+<main>
+<section class="card">
+<h2>👋 Today's Dashboard</h2>
+<div class="stats">
+<div class="stat"><strong id="doneCount">0</strong>Tasks Done</div>
+<div class="stat"><strong id="totalCount">0</strong>Total Tasks</div>
+<div class="stat"><strong id="minutes">0</strong>Study Min</div>
+</div>
+</section>
+
+<section class="card">
+<h2>📖 Subjects</h2>
+<div class="grid">
+<div class="subject" onclick="setTask('Physics')"><b>⚡ Physics</b><span>Concepts + Numericals</span></div>
+<div class="subject" onclick="setTask('Chemistry')"><b>🧪 Chemistry</b><span>Reactions + Numericals</span></div>
+<div class="subject" onclick="setTask('Mathematics')"><b>📐 Mathematics</b><span>Practice + Revision</span></div>
+<div class="subject" onclick="setTask('English')"><b>📘 English</b><span>Writing + Literature</span></div>
+</div>
+</section>
+
+<section class="card">
+<h2>✅ Study Tasks</h2>
+<div class="row">
+<input id="taskInput" placeholder="e.g. Physics: Coulomb's Law practice">
+<button onclick="addTask()">Add Task</button>
+</div>
+<div id="tasks" style="margin-top:10px"></div>
+</section>
+
+<section class="card">
+<h2>⏱️ Study Timer</h2>
+<div id="timer" class="timer">25:00</div>
+<div class="timerBtns">
+<button onclick="startTimer()">Start</button>
+<button onclick="pauseTimer()">Pause</button>
+<button onclick="resetTimer()">Reset</button>
+</div>
+<p class="small" style="text-align:center">When the timer reaches 0, your study minutes increase by 25.</p>
+</section>
+
+<section class="card">
+<h2>🗓️ Simple Timetable</h2>
+<div class="row">
+<select id="slot"><option>Morning</option><option>Afternoon</option><option>Evening</option><option>Night</option></select>
+<input id="slotSubject" placeholder="Subject / topic">
+<button onclick="saveSlot()">Save</button>
+</div>
+<div id="timetable" style="margin-top:10px"></div>
+</section>
+
+<section class="card">
+<h2>📌 Quick Formula Notes</h2>
+<div class="formula"><b>Physics:</b> F = k q₁q₂ / r²</div>
+<div class="formula"><b>Electric field:</b> E = F/q</div>
+<div class="formula"><b>Potential:</b> V = W/q</div>
+<div class="formula"><b>Maths:</b> ∫xⁿ dx = xⁿ⁺¹/(n+1) + C, n ≠ −1</div>
+<div class="formula"><b>Chemistry:</b> Nernst equation: E = E° − (0.0591/n) log Q (at 298 K)</div>
+</section>
+
+<section class="card">
+<h2>📢 Study Reminders</h2>
+<div class="notice">Break difficult chapters into small topics.</div>
+<div class="notice">After learning a formula, solve a few questions without looking at the solution.</div>
+<div class="notice">Revise mistakes regularly.</div>
+</section>
+
+<section class="card">
+<button onclick="toggleDark()">🌙 Toggle Dark Mode</button>
+<button onclick="clearData()" style="background:#dc3545;margin-left:6px">Clear Saved Data</button>
+</section>
+</main>
+
+<footer>Your personal offline study dashboard.</footer>
+
+<script>
+let tasks=JSON.parse(localStorage.getItem("rtc_tasks")||"[]");
+let timetable=JSON.parse(localStorage.getItem("rtc_timetable")||"[]");
+let studyMinutes=Number(localStorage.getItem("rtc_minutes")||0);
+let seconds=1500, interval=null;
+
+function save(){localStorage.setItem("rtc_tasks",JSON.stringify(tasks));localStorage.setItem("rtc_timetable",JSON.stringify(timetable));localStorage.setItem("rtc_minutes",studyMinutes)}
+function render(){
+  const box=document.getElementById("tasks"); box.innerHTML="";
+  tasks.forEach((t,i)=>{
+    const d=document.createElement("div"); d.className="task "+(t.done?"done":"");
+    d.innerHTML=`<input type="checkbox" ${t.done?"checked":""} onchange="toggleTask(${i})" style="width:auto"><span style="flex:1"></span><button onclick="deleteTask(${i})">Delete</button>`;
+    d.querySelector("span").textContent=t.text; box.appendChild(d);
+  });
+  document.getElementById("doneCount").textContent=tasks.filter(x=>x.done).length;
+  document.getElementById("totalCount").textContent=tasks.length;
+  document.getElementById("minutes").textContent=studyMinutes;
+  const tb=document.getElementById("timetable"); tb.innerHTML="";
+  timetable.forEach((x,i)=>{tb.innerHTML+=`<div class="notice"><b>${x.slot}:</b> ${escapeHtml(x.subject)} <button onclick="deleteSlot(${i})" style="float:right;padding:5px 8px;background:#dc3545">×</button></div>`});
+  save();
+}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function addTask(){
+  const x=document.getElementById("taskInput"), text=x.value.trim(); if(!text)return;
+  tasks.push({text,done:false}); x.value=""; render();
+}
+function setTask(subject){document.getElementById("taskInput").value=subject+": ";}
+function toggleTask(i){tasks[i].done=!tasks[i].done;render()}
+function deleteTask(i){tasks.splice(i,1);render()}
+function saveSlot(){
+  const slot=document.getElementById("slot").value, subject=document.getElementById("slotSubject").value.trim();
+  if(!subject)return; timetable.push({slot,subject}); document.getElementById("slotSubject").value="";render();
+}
+function deleteSlot(i){timetable.splice(i,1);render()}
+function updateTimer(){
+  const m=String(Math.floor(seconds/60)).padStart(2,"0"),s=String(seconds%60).padStart(2,"0");
+  document.getElementById("timer").textContent=m+":"+s;
+}
+function startTimer(){
+  if(interval)return;
+  interval=setInterval(()=>{
+    if(seconds>0){seconds--;updateTimer()}
+    else{clearInterval(interval);interval=null;studyMinutes+=25;alert("🎉 25-minute study session complete!");seconds=1500;updateTimer();render()}
+  },1000);
+}
+function pauseTimer(){clearInterval(interval);interval=null}
+function resetTimer(){pauseTimer();seconds=1500;updateTimer()}
+function toggleDark(){document.body.classList.toggle("dark");localStorage.setItem("rtc_dark",document.body.classList.contains("dark"))}
+function clearData(){
+  if(confirm("Clear tasks, timetable and study minutes?")){
+    tasks=[];timetable=[];studyMinutes=0;render();
+  }
+}
+if(localStorage.getItem("rtc_dark")==="true")document.body.classList.add("dark");
+render();updateTimer();
+</script>
+</body>
+</html>
